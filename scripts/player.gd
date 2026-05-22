@@ -108,7 +108,7 @@ func _physics_process(delta: float) -> void:
 		# move and scale object
 		grabbing.global_position = camera.global_position + forward * nearest
 		grabbing.basis = grab_basis * (nearest / grab_distance)
-		grabbing.mass = grab_mass * (nearest / grab_distance)
+		grabbing.mass = grab_mass * (nearest / grab_distance) ** 3
 		# reset velocity so it doesn't start falling super fast when you drop it or something
 		grabbing.linear_velocity = Vector3.ZERO
 		grabbing.angular_velocity = Vector3.ZERO
