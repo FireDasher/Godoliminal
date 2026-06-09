@@ -10,12 +10,13 @@ const MOUSE_SENSITIVITY = 0.002
 @onready var grab_sound: AudioStreamPlayer = $Grab
 @onready var drop_sound: AudioStreamPlayer = $Drop
 
-var grabbing: RigidBody3D
+var grabbing: Grabbable
 var grabbing_points: PackedVector3Array
 var grab_distance: float
 var grab_basis: Basis
 var grab_mass: float
 var grab_offset: Vector3
+var initial_rotation: Vector3
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -71,44 +72,58 @@ func _physics_process(delta: float) -> void:
 		if grabbing:
 			grabbing.freeze = false
 			grabbing.collision_layer = 6
-			#grabbing.get_node("Mesh").cast_shadow = 1
 			grabbing = null
 			drop_sound.play()
 		else:
 			var result := raycast(camera.global_position, -camera.global_basis.z, 4)
-			if result and result.collider is RigidBody3D:
+			if result and result.collider is Grabbable:
 				grabbing = result.collider
 				grabbing.freeze = true
 				grabbing.collision_layer = 4
 				grab_distance = camera.global_position.distance_to(grabbing.global_position)
 				grab_offset = camera.global_basis.inverse() * camera.global_position.direction_to(grabbing.global_position)
 				grab_basis = grabbing.basis
+				initial_rotation = camera.global_rotation
 				grab_mass = grabbing.mass
 				grabbing_points = get_points(grabbing.get_node("Collision"))
-				#grabbing.get_node("Mesh").cast_shadow = 0
 				grab_sound.play()
 
+
+func _process(delta: float) -> void:
 	# This is where the effect happens
 	if grabbing:
+		var smooth_factor := 1.0 - exp(-5.0 * delta)
+		# rotation
+		var offset := camera.global_rotation - initial_rotation
+		var gbasis: Basis = grab_basis
+		if grabbing.grab_mode == 0:
+			# as far as I am aware this is the only way to do this
+			grab_basis = grab_basis.orthonormalized().slerp(Basis.from_euler(Vector3(0.0, grab_basis.get_euler().y, 0.0)), smooth_factor).scaled(grab_basis.get_scale())
+			gbasis = grab_basis.rotated(Vector3.UP, offset.y)
+		elif grabbing.grab_mode == 1:
+			gbasis = grab_basis.rotated(Vector3.UP, offset.y)
+		elif grabbing.grab_mode == 2:
+			gbasis = grab_basis.rotated(Vector3.UP, offset.y).rotated(camera.global_basis.x, offset.x)
+			
 		# smoothing
-		grab_offset = grab_offset.slerp(Vector3.FORWARD, 0.025)
+		grab_offset = grab_offset.slerp(Vector3.FORWARD, smooth_factor)
 		var forward := camera.global_basis * grab_offset
 		var center := camera.global_position + forward * grab_distance
 		# get nearest corrected length
 		var nearest := 100.0
 		for point in grabbing_points:
-			var real_point := center + grab_basis * point
+			var real_point := center + gbasis * point
 			var result := raycast(camera.global_position, camera.global_position.direction_to(real_point), 3)
 			if result:
 				# Math
-				var axis := forward + grab_basis * point / grab_distance
+				var axis := forward + gbasis * point / grab_distance
 				var length: float = (result.position - camera.global_position).dot(axis) / axis.length_squared()
 				if length < nearest:
 					nearest = length
 		# move and scale object
 		var s: float = (nearest / grab_distance)
 		grabbing.global_position = camera.global_position + forward * nearest
-		grabbing.basis = grab_basis * s
+		grabbing.basis = gbasis * s
 		grabbing.mass = grab_mass * (s*s*s)
 		# reset velocity so it doesn't start falling super fast when you drop it or something
 		grabbing.linear_velocity = Vector3.ZERO

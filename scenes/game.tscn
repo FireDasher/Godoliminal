@@ -1,10 +1,11 @@
 [gd_scene format=3 uid="uid://bl76m3mvbqr5c"]
 
-[ext_resource type="AudioStream" uid="uid://buttv8thifn67" path="res://sounds/jazz.ogg" id="1_0tnpc"]
 [ext_resource type="Texture2D" uid="uid://bgimgc8p5g6u1" path="res://textures/grid.png" id="1_uwrxv"]
 [ext_resource type="PackedScene" uid="uid://bewa35bl7t4xd" path="res://scenes/player.tscn" id="2_yqjtg"]
-[ext_resource type="Texture2D" uid="uid://d3h4mbpoihjlu" path="res://textures/wall_albedo.png" id="3_lnu2h"]
+[ext_resource type="Texture2D" uid="uid://d1csyv841ph2j" path="res://textures/pbr/wall_albedo.png" id="3_gee14"]
+[ext_resource type="Texture2D" uid="uid://dintvf5ep70a0" path="res://textures/pbr/wall_normal.png" id="4_0tnpc"]
 [ext_resource type="PackedScene" uid="uid://c33jhvk7tilyi" path="res://scenes/cube.tscn" id="5_u5sy4"]
+[ext_resource type="Texture2D" uid="uid://ci0q03v6gim5w" path="res://textures/pbr/wall_orm.png" id="5_vtaks"]
 [ext_resource type="PackedScene" uid="uid://c7hrsor4smxv0" path="res://scenes/pawn.tscn" id="6_u5sy4"]
 [ext_resource type="Texture2D" uid="uid://b270q8u8idcjv" path="res://textures/stud.png" id="8_gee14"]
 
@@ -16,8 +17,11 @@ ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
 sky_material = SubResource("ProceduralSkyMaterial_yqjtg")
 
 [sub_resource type="Environment" id="Environment_lbhrr"]
+background_mode = 2
 sky = SubResource("Sky_lnu2h")
-tonemap_mode = 2
+ssr_enabled = true
+ssao_enabled = true
+sdfgi_read_sky_light = false
 glow_enabled = true
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_dbls1"]
@@ -35,17 +39,19 @@ material = SubResource("StandardMaterial3D_33cqm")
 size = Vector3(20, 0.1, 20)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lnu2h"]
-size = Vector3(20, 20, 0.5)
+size = Vector3(20, 10, 0.5)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lbhrr"]
-albedo_texture = ExtResource("3_lnu2h")
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_kvpfn"]
+albedo_texture = ExtResource("3_gee14")
+orm_texture = ExtResource("5_vtaks")
+normal_enabled = true
+normal_texture = ExtResource("4_0tnpc")
 uv1_scale = Vector3(0.2, 0.2, 0.2)
-uv1_offset = Vector3(0, 0, 0.1)
 uv1_triplanar = true
 
 [sub_resource type="BoxMesh" id="BoxMesh_iywne"]
-material = SubResource("StandardMaterial3D_lbhrr")
-size = Vector3(20, 20, 0.5)
+material = SubResource("ORMMaterial3D_kvpfn")
+size = Vector3(20, 10, 0.5)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0tnpc"]
 albedo_texture = ExtResource("8_gee14")
@@ -66,11 +72,6 @@ size = Vector3(2, 0.1, 2)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=436237463]
 environment = SubResource("Environment_lbhrr")
-
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1201955750]
-stream = ExtResource("1_0tnpc")
-autoplay = true
-parameters/looping = true
 
 [node name="Hud" type="CanvasLayer" parent="." unique_id=1153135047]
 
@@ -111,7 +112,7 @@ shape = SubResource("BoxShape3D_dbls1")
 mesh = SubResource("BoxMesh_yqjtg")
 
 [node name="Wall" type="StaticBody3D" parent="." unique_id=115089965]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -10.25)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -10.25)
 metadata/_edit_group_ = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Wall" unique_id=336060857]
@@ -121,7 +122,7 @@ shape = SubResource("BoxShape3D_lnu2h")
 mesh = SubResource("BoxMesh_iywne")
 
 [node name="Wall4" type="StaticBody3D" parent="." unique_id=1244317143]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 10.25)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 10.25)
 metadata/_edit_group_ = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Wall4" unique_id=1740995609]
@@ -131,7 +132,7 @@ shape = SubResource("BoxShape3D_lnu2h")
 mesh = SubResource("BoxMesh_iywne")
 
 [node name="Wall2" type="StaticBody3D" parent="." unique_id=1381372520]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -10.25, 10, 0)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -10.25, 5, 0)
 metadata/_edit_group_ = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Wall2" unique_id=2074893818]
@@ -141,7 +142,7 @@ shape = SubResource("BoxShape3D_lnu2h")
 mesh = SubResource("BoxMesh_iywne")
 
 [node name="Wall3" type="StaticBody3D" parent="." unique_id=1244249854]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 10.25, 10, 0)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 10.25, 5, 0)
 metadata/_edit_group_ = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Wall3" unique_id=913505803]
@@ -216,4 +217,5 @@ shape = SubResource("BoxShape3D_gee14")
 [node name="Label3D2" type="Label3D" parent="." unique_id=511897690]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 9, 9, 9.99)
 text = "If you got up here
-you won I guess"
+then congratulations
+you won!!!!!!!!!!!!!!!!!!"
