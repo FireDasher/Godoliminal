@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://bl76m3mvbqr5c"]
 
+[ext_resource type="Texture2D" uid="uid://dxkk0bmrft7ac" path="res://cursors/circle.bmp" id="1_0tnpc"]
 [ext_resource type="Texture2D" uid="uid://bgimgc8p5g6u1" path="res://textures/grid.png" id="1_uwrxv"]
 [ext_resource type="PackedScene" uid="uid://bewa35bl7t4xd" path="res://scenes/player.tscn" id="2_yqjtg"]
 [ext_resource type="Texture2D" uid="uid://d1csyv841ph2j" path="res://textures/pbr/wall_albedo.png" id="3_gee14"]
@@ -73,20 +74,21 @@ size = Vector3(2, 0.1, 2)
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=436237463]
 environment = SubResource("Environment_lbhrr")
 
-[node name="Hud" type="CanvasLayer" parent="." unique_id=1153135047]
+[node name="UI" type="CanvasLayer" parent="." unique_id=1153135047]
 
-[node name="ColorRect" type="ColorRect" parent="Hud" unique_id=789617533]
+[node name="Cursor" type="TextureRect" parent="UI" unique_id=2069491900]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -2.5
-offset_top = -2.5
-offset_right = 2.5
-offset_bottom = 2.5
+offset_left = -14.0
+offset_top = -19.0
+offset_right = 26.0
+offset_bottom = 21.0
 grow_horizontal = 2
 grow_vertical = 2
+texture = ExtResource("1_0tnpc")
 
 [node name="Player" parent="." unique_id=2142139888 instance=ExtResource("2_yqjtg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)

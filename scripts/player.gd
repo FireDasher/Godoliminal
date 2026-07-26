@@ -10,6 +10,11 @@ const MOUSE_SENSITIVITY = 0.002
 @onready var grab_sound: AudioStreamPlayer = $Grab
 @onready var drop_sound: AudioStreamPlayer = $Drop
 
+@onready var cursor: TextureRect = $"../UI/Cursor"
+const dot_cursor: Texture2D = preload("res://cursors/circle.bmp")
+const pointer_cursor: Texture2D = preload("res://cursors/pointerCursor.bmp")
+const grab_cursor: Texture2D = preload("res://cursors/grabCursor.bmp")
+
 var grabbing: Grabbable
 var grabbing_points: PackedVector3Array
 var grab_distance: float
@@ -67,19 +72,26 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 	# Pick up and drop objects
+	var result := raycast(camera.global_position, -camera.global_basis.z, 1)
+	# Setting the texture every frame is safe because internally if the assigned texture is the same as the current one then it returns
+	if grabbing:
+		cursor.texture = grab_cursor
+	elif result and result.collider is Grabbable:
+		cursor.texture = pointer_cursor
+	else:
+		cursor.texture = dot_cursor
 	if Input.is_action_just_pressed("grab"):
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		if grabbing:
 			grabbing.freeze = false
-			grabbing.collision_layer = 6
+			grabbing.collision_layer = 1
 			grabbing = null
 			drop_sound.play()
 		else:
-			var result := raycast(camera.global_position, -camera.global_basis.z, 4)
 			if result and result.collider is Grabbable:
 				grabbing = result.collider
 				grabbing.freeze = true
-				grabbing.collision_layer = 4
+				grabbing.collision_layer = 2
 				grab_distance = camera.global_position.distance_to(grabbing.global_position)
 				grab_offset = camera.global_basis.inverse() * camera.global_position.direction_to(grabbing.global_position)
 				grab_basis = grabbing.basis
@@ -113,7 +125,7 @@ func _process(delta: float) -> void:
 		var nearest := 100.0
 		for point in grabbing_points:
 			var real_point := center + gbasis * point
-			var result := raycast(camera.global_position, camera.global_position.direction_to(real_point), 3)
+			var result := raycast(camera.global_position, camera.global_position.direction_to(real_point), 1)
 			if result:
 				# Math
 				var axis := forward + gbasis * point / grab_distance

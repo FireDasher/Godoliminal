@@ -9,8 +9,6 @@ radius = 0.4
 height = 1.75
 
 [node name="Player" type="CharacterBody3D" unique_id=2142139888]
-collision_layer = 2
-collision_mask = 3
 platform_floor_layers = 4294901761
 script = ExtResource("1_3vyb7")
 
